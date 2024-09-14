@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-
-import DOMPurify from 'dompurify'
 import Posts from '@/components/posts'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -12,7 +10,7 @@ import type { PostMetadata } from '@/lib/posts'
 export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
   const [query, setQuery] = useState('')
 
-  const sanitizedQuery = useMemo(() => DOMPurify.sanitize(query), [query])
+  const sanitizedQuery = useMemo(() => query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), [query])
 
   const filtered = posts.filter(post =>
     post.title?.toLowerCase().includes(sanitizedQuery.toLowerCase())

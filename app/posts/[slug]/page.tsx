@@ -6,11 +6,12 @@ import MDXContent from '@/components/mdx-content'
 import { getPosts, getPostBySlug } from '@/lib/posts'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { notFound } from 'next/navigation'
+import NewsletterForm from '@/components/newsletter-form'
 //import NewsletterForm from '@/components/newsletter-form'
 
 export async function generateStaticParams() {
-  const posts = await getPosts()
-  const slugs = posts.map(post => ({ slug: post.slug }))
+  const posts = await getPosts();
+  const slugs = posts.map((post) => ({ params: { slug: post.slug } }));
 
   return slugs
 }
@@ -59,8 +60,8 @@ export default async function Post({ params }: { params: { slug: string } }) {
         </main>
 
         <footer className='mt-16'>
-          {/**          <NewsletterForm />
- */}
+                  <NewsletterForm />
+ 
         </footer>
       </div>
     </section>

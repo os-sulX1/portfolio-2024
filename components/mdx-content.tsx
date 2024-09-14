@@ -1,31 +1,34 @@
- import type { JSX } from 'react'
-import { highlight } from 'sugar-high'
-import { MDXRemote, type MDXRemoteProps } from 'next-mdx-remote/rsc'
-import type { ReactNode } from 'react';
+import { MDXRemote, type MDXRemoteProps } from 'next-mdx-remote/rsc';
 import Counter from './counter';
 
-interface CodeProps {
-  children: ReactNode;
-  [key: string]: unknown;
+interface CodeProps extends React.HTMLAttributes<HTMLElement> {
+  children?: React.ReactNode;
 }
-function Code({ children, ...props }: CodeProps) {
-  const codeHTML = highlight(children as string)
+
+const highlight = (code: string) => {
+  // Implement a basic syntax highlighter or use a different library
+  return code.replace(/(const|let|var|function|return)/g, '<span class="keyword">$1</span>');
+};
+
+const Code: React.FC<CodeProps> = ({ children, ...props }) => {
+  const codeHTML = children ? highlight(children.toString()) : '';
   // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-  return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
-}
+  return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
+};
 
-const components = {
+const components: React.ComponentProps<typeof MDXRemote>['components'] = {
   code: Code,
-  Counter
-}
+  Counter,
+};
 
-export default function MDXContent(
-  props: JSX.IntrinsicAttributes & MDXRemoteProps
-) {
+export default async function MDXContent({ source, options, components: propComponents }: MDXRemoteProps) {
+  const mergedComponents = { ...components, ...(propComponents || {}) };
+
   return (
     <MDXRemote
-      {...props}
-      components={{ ...components, ...(props.components as MDXRemoteProps['components'] || {}) }}
+      source={source}
+      options={options}
+      components={mergedComponents}
     />
-  )
+  );
 }
