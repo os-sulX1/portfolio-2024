@@ -1,0 +1,142 @@
+---
+title: Next.js 14 App Router and File Structure - Building a Blog
+summary: Learn how to leverage Next.js 14's App Router and new file structure to create a simple yet powerful blog application.
+image: /images/posts/nextjs-14-blog-example.webp
+author: 'Sultan Saleh'
+publishedAt: '2024-09-12'
+---
+
+# Next.js 14 App Router and File Structure: Building a Blog
+
+Next.js 14 introduces the App Router, a powerful new feature that transforms how we structure and organize our applications. In this post, we'll explore how to build a simple blog using the App Router and the new file-based routing system.
+
+## Project Structure
+
+Let's start by looking at the file structure for our blog:
+
+```
+my-blog/
+├── app/
+│   ├── layout.js
+│   ├── page.js
+│   ├── global.css
+│   ├── posts/
+│   │   ├── [slug]/
+│   │   │   └── page.js
+│   │   └── page.js
+│   └── about/
+│       └── page.js
+├── components/
+│   ├── Header.js
+│   └── Footer.js
+├── lib/
+│   └── posts.js
+└── public/
+    └── images/
+```
+
+This structure leverages the new App Router conventions in Next.js 14.
+
+## Key Components
+
+### 1. Root Layout (app/layout.js)
+
+The root layout wraps all pages in our application:
+
+```jsx
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import './global.css'
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
+    </html>
+  )
+}
+```
+
+### 2. Home Page (app/page.js)
+
+The home page displays a list of blog posts:
+
+```jsx
+import Link from 'next/link'
+import { getPosts } from '../lib/posts'
+
+export default async function Home() {
+  const posts = await getPosts()
+  
+  return (
+    <div>
+      <h1>Welcome to My Blog</h1>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.slug}>
+            <Link href={`/posts/${post.slug}`}>
+              {post.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+```
+
+### 3. Blog Post Page (app/posts/[slug]/page.js)
+
+This dynamic route handles individual blog posts:
+
+```jsx
+import { getPostBySlug } from '../../../lib/posts'
+
+export default async function Post({ params }) {
+  const post = await getPostBySlug(params.slug)
+  
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+    </article>
+  )
+}
+```
+
+### 4. About Page (app/about/page.js)
+
+A simple about page:
+
+```jsx
+export default function About() {
+  return (
+    <div>
+      <h1>About Us</h1>
+      <p>We are passionate about sharing knowledge through our blog.</p>
+    </div>
+  )
+}
+```
+
+## Key Features of the App Router
+
+1. **Nested Layouts**: The root layout (`app/layout.js`) applies to all pages, while you can create nested layouts for specific sections.
+
+2. **Server Components**: By default, all components in the `app` directory are React Server Components, offering improved performance.
+
+3. **Simplified Routing**: The file system directly maps to your URL structure, making routing intuitive and easy to manage.
+
+4. **Loading States**: You can add a `loading.js` file to any route segment to show a loading state while the page content is being fetched.
+
+5. **Error Handling**: Add an `error.js` file to gracefully handle errors within a route segment.
+
+## Conclusion
+
+Next.js 14's App Router and new file structure provide a powerful and intuitive way to build web applications. This blog example demonstrates how easy it is to create a structured, performant application with features like layouts, dynamic routes, and server components.
+
+By leveraging these new features, you can create more maintainable and scalable Next.js applications, whether you're building a simple blog or a complex web application.
