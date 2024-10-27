@@ -6,9 +6,9 @@ export default async function RecentProjects() {
   const projects = await getProjects(2)
 
   return (
-    <section className='pb-24'>
-      <div>
-        <h2 className='title mb-12'>Recent projects</h2>
+    <section className="py-16 bg-gradient-to-b from-background to-primary/5">
+             <div className="container max-w-4xl">
+       <h2 className="text-3xl font-bold tracking-tight text-primary mb-8">Recent Project</h2>
         <Projects projects={projects} />
 
         <Link

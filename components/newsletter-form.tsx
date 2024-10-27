@@ -8,96 +8,107 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { NewsletterFormSchema } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { subscribe } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import DOMPurify from 'dompurify';
+import { motion } from "framer-motion";
+import { Mail } from "lucide-react";
 
 type Inputs = z.infer<typeof NewsletterFormSchema>;
 
 export default function NewsletterForm() {
-	const {
-		register,
-		handleSubmit,
-		reset,
-		formState: { errors, isSubmitting },
-	} = useForm<Inputs>({
-		resolver: zodResolver(NewsletterFormSchema),
-		defaultValues: {
-			email: "",
-		},
-	});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<Inputs>({
+    resolver: zodResolver(NewsletterFormSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-	const processForm: SubmitHandler<Inputs> = async (data) => {
-		// Sanitize input data to prevent XSS attacks
-		const sanitizedData = {
-			email: DOMPurify.sanitize(data.email),
-		};
+  const processForm: SubmitHandler<Inputs> = async (data) => {
+    const sanitizedData = {
+      email: DOMPurify.sanitize(data.email),
+    };
 
-		const result = await subscribe(sanitizedData);
+    const result = await subscribe(sanitizedData);
 
-		if (result?.error) {
-			toast.error("An error occurred! Please try again.");
-			return;
-		}
+    if (result?.error) {
+      toast.error("An error occurred! Please try again.");
+      return;
+    }
 
-		toast.success("Subscribed successfully!");
-		reset();
-	};
+    toast.success("Subscribed successfully!");
+    reset();
+  };
 
-	return (
-		<section>
-			<Card className="rounded-lg border-0 dark:border">
-				<CardContent className="flex flex-col gap-8 pt-6 md:flex-row md:justify-between md:pt-8">
-					<div>
-						<h2 className="text-2xl font-bold">Subscribe to my newsletter</h2>
-						<p className="text-muted-foreground">
-							Get updates on my work and projects.
-						</p>
-					</div>
+  return (
+    <section className="py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="overflow-hidden rounded-lg border-0 bg-gradient-to-br from-primary/10 via-background to-primary/10 dark:border">
+          <CardContent className="p-8">
+            <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight text-primary">Subscribe to my newsletter</h2>
+                <p className="text-muted-foreground">
+                  Get updates on my work and projects.
+                </p>
+              </div>
 
-					<form
-						onSubmit={handleSubmit(processForm)}
-						className="flex flex-col items-start gap-3"
-					>
-						<div className="w-full">
-							<Input
-								type="email"
-								id="email"
-								autoComplete="email"
-								placeholder="Email"
-								className="w-full"
-								{...register("email")}
-							/>
+              <form
+                onSubmit={handleSubmit(processForm)}
+                className="flex flex-col items-start gap-4 md:flex-row md:items-end"
+              >
+                <div className="w-full md:w-auto">
+                  <Input
+                    type="email"
+                    id="email"
+                    autoComplete="email"
+                    placeholder="Enter your email"
+                    className="w-full md:w-64"
+                    {...register("email")}
+                  />
 
-							{errors.email?.message && (
-								<p className="ml-1 mt-2 text-sm text-rose-400">
-									{errors.email.message}
-								</p>
-							)}
-						</div>
+                  {errors.email?.message && (
+                    <p className="mt-2 text-sm text-destructive">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
 
-						<div className="w-full">
-							<Button
-								type="submit"
-								disabled={isSubmitting}
-								className="w-full disabled:opacity-50"
-							>
-								{isSubmitting ? "Submitting..." : "Subscribe"}
-							</Button>
-						</div>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full md:w-auto"
+                >
+                  {isSubmitting ? (
+                    "Subscribing..."
+                  ) : (
+                    <>
+                      Subscribe <Mail className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
 
-						<div>
-							<p className="text-xs text-muted-foreground">
-								We care about your data. Read our{" "}
-								<Link href="/privacy" className="font-bold">
-									privacy&nbsp;policy.
-								</Link>
-							</p>
-						</div>
-					</form>
-				</CardContent>
-			</Card>
-		</section>
-	);
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              We care about your data. Read our{" "}
+              <Link href="/privacy" className="font-medium underline underline-offset-4 hover:text-primary">
+                privacy&nbsp;policy
+              </Link>
+              .
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </section>
+  );
 }
